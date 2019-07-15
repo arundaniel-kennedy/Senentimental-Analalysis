@@ -1,0 +1,34 @@
+@import url('https://fonts.googleapis.com/css?family=Slabo+27px|Source+Sans+Pro');
+
+html,body{
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  color:white !important;
+  font-family: 'Source Sans Pro', sans-serif;
+  background-color: black;
+}
+
+a{
+  text-decoration: none;
+  color: white;
+}
+
+a:hover{
+  text-decoration: none;
+  color: green;
+}
+
+.title{
+  font-size: 4rem;
+  font-weight: 600;
+  font-family: 'Slabo 27px', serif;
+}
+
+.nav-item{
+  color: white;
+}
+
+.wid{
+  width: 40vw !important;
+}

@@ -1,0 +1,6 @@
+from flask import Flask as fl
+app = fl(__name__)
+
+@app.route('/')
+def index():
+    return '<h1>HEllo world!!!</h1>'
