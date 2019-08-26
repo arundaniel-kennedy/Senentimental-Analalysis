@@ -42,10 +42,21 @@ def year():
 
 @app.route('/content/<id>')
 def contentpage(id):
+    mycursor.execute("SELECT id FROM review ORDER BY RAND() limit 20")
+    rate = mycursor.fetchall()
+
+    sum=0
+    for y in rate:
+        sum+=y[0]
+
+    avg = (sum/20)*100
+
+    #mycursor.execute("UPDATE `ads` SET `rating` = '"+str(avg)+"' WHERE `ads`.`tid` = '"+id+"'")
+    #link.commit()
+
     mycursor.execute("SELECT * FROM ads WHERE tid = '"+id+"'")
     myresult = mycursor.fetchone()
-
-    return render_template("contentpage.html",x=myresult)
+    return render_template("contentpage.html",x=myresult,rate=avg)
 
 
 if __name__ == "__main__":
