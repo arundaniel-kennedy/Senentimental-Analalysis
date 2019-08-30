@@ -4,20 +4,21 @@
 {% block content %}
 <div class="row">
 {% for x in result%}
-<div class="col pt-3">
-  <form action="content/{{x[0]}}" method="GET">
-    <div class="card hvrbox" style="width:12rem;border-radius:0px;height: 38vh;color:black;">
+<div class="col pt-5">
+  <form action="content/{{x[1]}}" method="GET">
+    <div class="card hvrbox" style="width:12rem;border-radius:0px;height: 55vh;color:black;">
       <div class="hvrbox-layer_bottom">
-        <img src="http://img.omdbapi.com/?apikey=bb0208a1&i={{x[0]}}" class="card-img-top" alt="" height="200vh;">
+        <img src="https:{{x[10]}}" class="card-img-top" alt="" height=300vh;">
         <div class="card-body ">
-          {{ x[1] }} <br>
-          {{ x[2] }}
+          {{ x[2] }} <br>
+          {{ x[5] }}
         </div>
       </div>
       <div class="hvrbox-layer_top">
         <div class="hvrbox-text">
-          <span class="fas fa-star" style="color:gold;"></span> <br>
-          {{x[3]}}
+          <span class="fas fa-star" style="color:gold;"></span> {{x[8]}}
+          <br>
+          Genre: {{x[14]}}
           <br>
           <input class="btn btn-success mt-5" type="submit" value="view details">
         </div>
