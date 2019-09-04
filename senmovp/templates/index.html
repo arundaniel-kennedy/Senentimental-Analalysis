@@ -6,17 +6,50 @@
 <center>
   <span class="title">ABH movies</span>
   <span>
-    <h2>Welcome to ABH movies. Here you will be able to know the ratings and reviews of the all genre movies in a most predominant way.
+    <h2>Welcome to ABH movies. Here you will be able to know the ratings and reviews of the all genre movies in a most predominant way.Also get Recommendations for new movies.
   </h2></span>
 
 
 <div class="wid text-center">
-  <form action="index.html" method="post" style="padding-top:20vh;">
+  <form action="{{url_for('search')}}" method="post" style="padding-top:17vh;">
     <div class="form-group">
-      <input type="text" name="name" class="form-control" placeholder="Search for movies....">
+      <input class="form-control mr-sm-2" type="search" placeholder="Search Movie" aria-label="Search" name="name" oninput="sea();" list="datas" onfocusout="clear()">
+      <datalist id="datas"></datalist>
     </div>
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
   </form>
 </div>
 
 </center>
+<br><br>
+<hr style="background-color:grey">
+<div class="container">
+  <h3>Latest Releases:</h3>
+  <div class="row">
+  {% for x in result%}
+  <div class="col pt-5">
+    <form action="/content/{{x[1]}}" method="GET">
+      <div class="card hvrbox" style="width:12rem;border-radius:0px;height: 55vh;color:black;">
+        <div class="hvrbox-layer_bottom">
+          <img src="https:{{x[10]}}" class="card-img-top" alt="" height=300vh;">
+          <div class="card-body ">
+            {{ x[2] }} <br>
+            {{ x[5] }}
+          </div>
+        </div>
+        <div class="hvrbox-layer_top">
+          <div class="hvrbox-text">
+            <span class="fas fa-star" style="color:gold;"></span> {{x[8]}}
+            <br>
+            Genre: {{x[14]}}
+            <br>
+            <input class="btn btn-success mt-5" type="submit" value="view details">
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  {%endfor%}
+  </div>
+</div>
 {% endblock %}

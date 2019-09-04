@@ -13,38 +13,40 @@
   <body>
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand" href="#">ABH</a>
+    <a class="navbar-brand" href="{{ url_for('index') }}">ABH</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse " id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
+      <li class="nav-item">
         <a class="nav-link" href="{{ url_for('index') }}">Home<span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('browse') }}">Browse<span class="sr-only"></span></a>
       </li>
       </ul>
 
       <ul class="navbar-nav justify-content-end ">
 
       <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('genre') }}">Movie genre</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('highrate') }}">Highest rated</a>
+        <a class="nav-link" href="{{ url_for('genres') }}">Movie genres</a>
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Order by
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item" href="{{ url_for('alpha') }}">By alphabet</a>
-          <a class="dropdown-item" href="{{ url_for('year') }}">By year</a>
+          <a class="dropdown-item" href="{{ url_for('highrate') }}">By Rating</a>
+          <a class="dropdown-item" href="{{ url_for('alpha') }}">By Alphabet</a>
+          <a class="dropdown-item" href="{{ url_for('year') }}">By Year</a>
         </div>
       </li>
     </ul>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="search" placeholder="Search Movie" aria-label="Search">
+    <form class="form-inline my-2 my-lg-0" name="search" action="{{url_for('search')}}" method="post">
+      <input class="form-control mr-sm-2" type="search" placeholder="Search Movie" aria-label="Search" name="name" oninput="calli();" list="data" onfocusout="clear()" onselect="pq();">
+      <datalist id="data"></datalist>
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
     </form>
 
@@ -56,6 +58,98 @@
       {% endblock%}
     </div>
 
+    <script>
+
+    function calli() {
+
+      var select = document.getElementById("data");
+      while(select.firstChild)
+       select.removeChild(select.firstChild);
+
+
+      val = document.getElementsByName('name')[0].value;
+
+      var select = document.getElementById("data");
+      while(select.firstChild)
+       select.removeChild(select.firstChild);
+
+      url = '/search/'+val;
+
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+
+          v=this.responseText;
+          v=v.split('@')
+          v = v.filter(function (el) {
+      		  return el != "";
+      		});
+          //console.log(v);
+
+          for(i=0;i<v.length;i+=2){
+            option=document.createElement("OPTION");
+            option.innerHTML=v[i+1]+"("+v[i]+")";
+            //option.setAttribute("value","/content/"+v[i]);
+            console.log(option)
+            select.appendChild(option);
+          }
+
+        }
+      };
+      xhttp.open("GET",url, false);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send('');
+    }
+
+    function clear()
+  	{
+  		var myNode = document.getElementById("data");
+  			while (myNode.firstChild) {
+  				myNode.removeChild(myNode.firstChild);
+  			}
+      var myNode = document.getElementById("datas");
+  			while (myNode.firstChild) {
+  				myNode.removeChild(myNode.firstChild);
+  			}
+  	}
+
+    function sea(){
+
+      var select = document.getElementById("datas");
+      while(select.firstChild)
+       select.removeChild(select.firstChild);
+
+
+      val = document.getElementsByName('name')[1].value;
+
+      url = '/search/'+val;
+
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+
+          v=this.responseText;
+          v=v.split('@')
+          v = v.filter(function (el) {
+      		  return el != "";
+      		});
+          //console.log(v);
+
+          for(i=0;i<v.length;i+=2){
+            option=document.createElement("OPTION");
+            option.innerHTML=v[i+1]+"("+v[i]+")";
+            //option.setAttribute("value","/content/"+v[i]);
+            console.log(option)
+            select.appendChild(option);
+          }
+
+        }
+      };
+      xhttp.open("GET",url, false);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send('');
+    }
+    </script>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
