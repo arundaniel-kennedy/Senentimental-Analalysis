@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Oct 27 17:41:20 2018
-
-@author: Mohammad Wasil Saleem.
-"""
+# RNN DANY CODE
 
 import re
 import pickle
@@ -25,8 +21,6 @@ def reviewWords(review, method):
     data_train_no_punctuation = re.sub(r"[^a-zA-Z]", " ", data_train_lower )
        
     # using porter stemming.
-    # https://pythonprogramming.net/stemming-nltk-tutorial/
-    # https://github.com/MohammadWasil/Coursera-Machine-Learning-Python/blob/master/CSR%20ML/WEEK%237/Machine%20Learning%20Assignment%236/Python/processEmail.py
     if method == "Porter Stemming":
         #print("Processing dataset with porter stemming...")
         stemmedWords = [ps.stem(word) for word in re.findall(r"\w+", data_train_no_punctuation)]
@@ -61,8 +55,8 @@ def training_Validation_Data(cleanWords, data_train):
     return x_train, y_train, x_val, y_val
 
 # Reading the Data
-data_train = pd.read_csv(".../labeledTrainData.tsv", delimiter = "\t")
-data_test = pd.read_csv(".../testData.tsv", delimiter = "\t")
+data_train = pd.read_csv("labeledTrainData.tsv", delimiter = "\t")
+data_test = pd.read_csv("testData.tsv", delimiter = "\t")
 
 # Input the value, whether you want to include porter stemming, stopwords.
 print("Input 'Porter Stemming' for porter stemming, 'Stop Words' for stop words, or anywords for Neither of them: ")

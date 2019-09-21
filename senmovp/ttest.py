@@ -15,6 +15,9 @@ link = mysql.connector.connect(**config)
 mycursor = link.cursor()
 
 
+
+
+'''
 mycursor.execute("SELECT genre FROM movies")
 genre = mycursor.fetchall()
 m=1
@@ -33,7 +36,7 @@ for i in genre:
             link.commit()
             m+=1
 
-
+'''
 
 '''#key add
 keyword =  pd.read_csv('tmdb.csv')

@@ -19,12 +19,12 @@ for line in testset:
         totpos+= a/(a+b)
         totneg+= b/(a+b) 
         
-    if totneg>totpos: 
+    if totneg>totpos:
         output.write("1," + line )
-     
-    if totneg<totpos: 
-        output.write("0," + line ) 
-        
+
+    if totneg<totpos:
+        output.write("0," + line )
+
     if totneg==totpos:
         output.write("1," + line)
 testset.close()
