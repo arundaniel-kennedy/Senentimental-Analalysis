@@ -5,7 +5,7 @@ import string
 
 config = {
   'user': 'root',
-  'password': 'root',
+  'password': '',
   'host': 'localhost',
   'database': 'movie',
   'raise_on_warnings': True,
@@ -14,10 +14,57 @@ config = {
 link = mysql.connector.connect(**config)
 mycursor = link.cursor()
 
-
-
+tup = (257, '262504', 'Allegiant', 'Beatrice Prior and Tobias Eaton venture into the world outside of the fence and are taken into protective custody by a mysterious agency known as the Bureau of Genetic Welfare.', '09-03-16', '2016', '121', 'en', '5.9', 'Released', '//upload.wikimedia.org/wikipedia/en/thumb/f/f8/Allegiantfilmposter.jpg/220px-Allegiantfilmposter.jpg', '[3047, 1665, 4146, 2383, 104, 70, 1312, 3323, 4122, 3509, 2954, 1844, 2789, 577, 2200, 2074, 1239, 796, 2526, 1987, 4544]', '[12, 878]', '[818, 2020, 4565, 9663, 162988, 206298, 223438]', 'Adventure')
+#print(tup)
+tup = list(tup)
+tup.append(98)
+print(tuple(tup))
 
 '''
+fdata = pd.read_csv(r'genlang.txt', sep=" ", header=None)
+imgurl=  pd.read_csv(r'dataimgn.txt', sep=" ", header=None)
+data=pd.read_csv('tmdb.csv')
+sim=pd.read_csv("t2.csv")
+
+y = ["Pandora's Box"]
+l=[]
+for i in y:
+    #exclude = set(string.punctuation)
+    #exclude = exclude-{':','&','_','(',')','-'}
+    #i = ''.join(ch for ch in i if ch not in exclude)
+    #print(exclude)
+    mycursor.execute('SELECT * FROM movies where title="'+i+'"')
+    myresult = mycursor.fetchone()
+    l.append(myresult)
+print(l)
+
+def srt(s):
+  return s[1]
+
+id = 426469
+
+mycursor.execute("SELECT title FROM movies where id='"+str(id)+"'")
+name = mycursor.fetchone()
+name = name[0]
+
+
+s=sim[name].sum()
+d=[]
+for i in sim.columns[1:]:
+  sm=(sim[name]*sim[i]).sum()/s
+  d.append([i.replace(' ',' '),sm])
+d=sorted(d,key=srt,reverse=True)
+d= [item for sublist in d for item in sublist]
+#k=d.find(0)
+#for i in d[:19:2]:
+print(d[2])
+
+
+mycursor.execute("SELECT * FROM movies where title='"+d[::2][1]+"'")
+p = mycursor.fetchall()
+print(p)
+
+
 mycursor.execute("SELECT genre FROM movies")
 genre = mycursor.fetchall()
 m=1

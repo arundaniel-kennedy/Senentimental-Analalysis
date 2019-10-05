@@ -1,0 +1,33 @@
+{%extends "base.html"%}
+
+
+{% block content %}
+<div class="row">
+{% for x in result%}
+<div class="col pt-5">
+  <form action="/content/{{x[1]}}" method="GET">
+    <div class="card hvrbox" style="width:12rem;border-radius:0px;height: 55vh;color:black;">
+      <div class="hvrbox-layer_bottom">
+        <img src="https:{{x[10]}}" class="card-img-top" alt="" height=300vh;">
+        <div class="card-body ">
+          {{ x[2] }} <br>
+          {{ x[5] }}
+        </div>
+      </div>
+      <div class="hvrbox-layer_top">
+        <div class="hvrbox-text">
+          <span class="fas fa-star" style="color:gold;"></span> {{x[8]}}
+          <br><br>
+          Genre: {{x[14]}}
+          <br><br>
+          {{ "{0:.2f}".format(x[15]*100) }}% Match
+          <br>
+          <input class="btn btn-success mt-5" type="submit" value="view details">
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{%endfor%}
+</div>
+{% endblock %}

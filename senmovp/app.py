@@ -1,6 +1,7 @@
 from flask import Flask,render_template,request,redirect,url_for
 from nltk.stem import PorterStemmer,LancasterStemmer
 from nltk.tokenize import sent_tokenize, word_tokenize
+import pandas as pd
 import string
 import mysql.connector
 import json
@@ -15,10 +16,33 @@ config = {
 
 link = mysql.connector.connect(**config)
 
-mycursor = link.cursor()
+mycursor = link.cursor(buffered=True)
+
+fdata = pd.read_csv(r'genlang.txt', sep=" ", header=None)
+imgurl=  pd.read_csv(r'dataimgn.txt', sep=" ", header=None)
+data=pd.read_csv('tmdb.csv')
+sim=pd.read_csv("t2.csv")
 
 def similar(id):
-    mov=[]
+    mycursor.execute("SELECT title FROM movies where id='"+str(id)+"'")
+    name = mycursor.fetchone()
+    name = name[0]
+
+    def srt(s):
+      return s[1]
+
+    #name = 'Avatar (2009 film)'
+    s=sim[name].sum()
+    d=[]
+    for i in sim.columns[1:]:
+      sm=(sim[name]*sim[i]).sum()/s
+      d.append([i.replace(' ',' '),sm])
+    d=sorted(d,key=srt,reverse=True)
+    d= [item for sublist in d for item in sublist]
+    #k=d.find(0)
+    #for i in d[:19:2]:
+
+    return d
 
 def com(comment):
     totneg=0
@@ -136,10 +160,27 @@ def year():
 
     return render_template("cards.html",result=myresult)
 
+@app.route('/similar/<id>')
+def simi(id):
+    simmov = similar(id)
+    f = []
+
+    for i in range(0,100,2):
+        mycursor.execute('SELECT * FROM movies where title="'+str(simmov[i])+'"')
+        myresult = mycursor.fetchone()
+        print(myresult, str(simmov[i]))
+        myresult = list(myresult)
+        myresult.append(simmov[i+1])
+        #print(myresult)
+        f.append(tuple(myresult))
+
+
+    return render_template("cards2.html",result=f)
+
 @app.route('/content/<id>')
 def contentpage(id):
 
-    #simmov = similar(id)
+    simmov = similar(id)
 
     mycursor.execute("SELECT comment FROM movies WHERE id = '"+id+"'")
     comment = mycursor.fetchall()
@@ -161,7 +202,15 @@ def contentpage(id):
     mycursor.execute("SELECT * FROM movies WHERE id = '"+id+"'")
     myresult = mycursor.fetchone()
 
-    return render_template("contentpage.html",x=myresult,rate=format(round(avg,2)),comments=comments)
+    f=[]
+    for i in range(0,10,2):
+
+        mycursor.execute('SELECT * FROM movies where title="'+simmov[i]+'"')
+        myresult1 = mycursor.fetchall()
+        #print(myresult1)
+        f.append(myresult1)
+    f.pop(0)
+    return render_template("contentpage.html",x=myresult,rate=format(round(avg,2)),comments=comments,simmov=f)
 
 @app.route('/comment',methods=['POST'])
 def addcomments():
@@ -170,13 +219,13 @@ def addcomments():
 
     comval = com(comment)
 
+    mycursor.execute("INSERT INTO `review` (`slno`, `id`, `comment`) VALUES (NULL,'"+comval+"', '"+comment+"')")
+    link.commit()
+
     mycursor.execute("SELECT * FROM review")
     myresult = mycursor.fetchall()
 
     slno = mycursor.rowcount
-
-    mycursor.execute("INSERT INTO `review` (`slno`, `id`, `comment`) VALUES (NULL,'"+comval+"', '"+comment+"')")
-    link.commit()
 
     mycursor.execute("SELECT comment FROM movies WHERE id = '"+id+"'")
     comment = mycursor.fetchall()
@@ -193,4 +242,4 @@ def addcomments():
     return redirect(url_for('contentpage',id=id))
 
 if __name__ == "__main__":
-    app.run(host='192.168.1.4', port=40974)
+    app.run(host='192.168.1.4', port=40974, debug=True)

@@ -6,7 +6,7 @@
 
     <div class="col-4 pt-3">
       <div class="card" style="width: 20rem; height:24rem;">
-       <img class="card-img-top" src="https:{{x[10]}}" alt="">
+       <img class="card-img-top" src="https:{{x[10]}}" alt="" height="381">
       </div>
       <br><br><br>
       <h3>Released on: {{x[4]}}</h3>
@@ -34,7 +34,40 @@
 
     <div class="col-4 pt-3">
       <h2>Similar movies</h2>
-    </div>
+        <div class="row">
+          {% for z in simmov %}
+            {% for a in z %}
+            <div class="col-6 mb-5">
+              <form action="/content/{{a[1]}}" method="GET">
+                <div class="card hvrbox" style="width:12rem;border-radius:0px;height: 40vh;color:black;">
+                  <div class="hvrbox-layer_bottom">
+                    <img src="https:{{a[10]}}" class="card-img-top" alt="" height=180vh;">
+                    <div class="card-body">
+                      {{ a[2] }} <br>
+                      {{ a[5] }}
+                    </div>
+                  </div>
+                  <div class="hvrbox-layer_top">
+                    <div class="hvrbox-text">
+                      <span class="fas fa-star" style="color:gold;"></span> {{a[8]}}
+                      <br>
+                      Genre: {{a[14]}}
+                      <br>
+                      <input class="btn btn-success mt-5" type="submit" value="view details">
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          {%endfor%}
+          {%endfor%}
+        </div>
+
+        <center>
+          <a type="button" class="btn btn-light btn-lg" name="button" href="/similar/{{x[1]}}">More Movies</a>
+        </center>
+
+      </div>
   </div>
   <hr>
   <h2>Comments</h2>
