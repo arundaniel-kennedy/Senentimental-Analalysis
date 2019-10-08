@@ -18,9 +18,6 @@ link = mysql.connector.connect(**config)
 
 mycursor = link.cursor(buffered=True)
 
-fdata = pd.read_csv(r'genlang.txt', sep=" ", header=None)
-imgurl=  pd.read_csv(r'dataimgn.txt', sep=" ", header=None)
-data=pd.read_csv('tmdb.csv')
 sim=pd.read_csv("t2.csv")
 
 def similar(id):
