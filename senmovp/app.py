@@ -1,4 +1,4 @@
-from flask import Flask,render_template,request,redirect,url_for
+from flask import Flask,render_template,request,redirect,url_for,session
 from nltk.stem import PorterStemmer,LancasterStemmer
 from nltk.tokenize import sent_tokenize, word_tokenize
 import pandas as pd
@@ -87,6 +87,7 @@ def com(comment):
         return("0")
 
 app = Flask(__name__)
+app.secret_key = "3d6f45a5fc12445dbac2f59c3b6c7cb1"
 
 @app.route('/')
 def index():
@@ -235,6 +236,20 @@ def addcomments():
 
     mycursor.execute("UPDATE `movies` SET `comment` = '"+str(data)+"' WHERE `id` = '"+str(id)+"'")
     link.commit()
+
+    return redirect(url_for('contentpage',id=id))
+
+@app.route('/login',methods=['POST'])
+def login():
+    username = request.form['username']
+    password = request.form['password']
+    id = request.form['id']
+
+    mycursor.execute('SELECT * FROM login WHERE username = "'+username+'" and password="'+password+'"')
+    comment = mycursor.fetchall()
+
+    if mycursor.rowcount == 1:
+        session['username']=username
 
     return redirect(url_for('contentpage',id=id))
 

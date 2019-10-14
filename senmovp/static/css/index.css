@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Slabo+27px|Source+Sans+Pro');
 
 html,body{
-  max-width: 100%;
   overflow-x: hidden;
   overflow-y: scroll;
   color:white !important;

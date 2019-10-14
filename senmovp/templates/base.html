@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/highrate.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/content.css') }}">
+
   </head>
   <body>
 
@@ -52,7 +53,7 @@
 
     </nav>
 
-    <div class="container pt-5 pb-5"><br><br>
+    <div class="container pt-5 pb-5">
       {% block content%}
 
       {% endblock%}
