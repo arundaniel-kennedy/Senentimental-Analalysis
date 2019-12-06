@@ -8,7 +8,7 @@ import pandas as pd
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from sklearn.metrics import confusion_matrix
-
+import joblib
 from keras.models import Sequential
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
@@ -19,13 +19,13 @@ def reviewWords(review, method):
     data_train_num = re.sub(r'[0-9]+', 'number', data_train_Exclude_tags)  # Converting numbers to "NUMBER"
     data_train_lower = data_train_num.lower()              # Converting to lower case.
     data_train_no_punctuation = re.sub(r"[^a-zA-Z]", " ", data_train_lower )
-       
+
     # using porter stemming.
     if method == "Porter Stemming":
         #print("Processing dataset with porter stemming...")
         stemmedWords = [ps.stem(word) for word in re.findall(r"\w+", data_train_no_punctuation)]
-        return(" ".join(stemmedWords))         
-        
+        return(" ".join(stemmedWords))
+
     # ussing stop words.
     # After using stop words, training accuracy increases, but testing accuracy decreases in Kaggle.
     # This method might overfit the training data.
@@ -34,19 +34,19 @@ def reviewWords(review, method):
         data_train_split = data_train_no_punctuation.split()            # Splitting into individual words.
         stopWords = set(stopwords.words("english") )
         meaningful_words = [w for w in data_train_split if not w in stopWords]     # Removing stop words.
-        return( " ".join( meaningful_words ))  
-    
+        return( " ".join( meaningful_words ))
+
     if method == "Nothing":
         #print("Processing dataset without porter stemming and stop words...")
-        return data_train_no_punctuation       
-    
+        return data_train_no_punctuation
+
 def training_Validation_Data(cleanWords, data_train):
-    
+
     X = cleanWords
     y = data_train["sentiment"]
-    
+
     test_start_index = int(data_train.shape[0] * .8)
-    
+
     x_train = X[0:test_start_index]
     y_train = y[0:test_start_index]
     x_val = X[test_start_index:]
@@ -65,13 +65,13 @@ preprocessingInput = input("Do you want to include porter stemming or stop word?
 if preprocessingInput == "Porter Stemming":
     method = "Porter Stemming"
     ps = PorterStemmer()        # instantiating a class instance.
-    
+
 elif preprocessingInput == "Stop Words":
     method = "Stop Words"
-    
+
 else:
     method = "Nothing"
-    
+
 # Input the value, whether you want to run the model on LSTM RNN or GRU RNN.
 print("Input 'LSTM' for LSTM RNN, 'GRU' for GRU RNN ")
 modelInput= input("Do you want to compile the model using LSTM RNN or GRU RNN?\n")
@@ -114,27 +114,27 @@ tokenizer = Tokenizer(num_words = num_most_freq_words_to_include)
 tokenizer.fit_on_texts(all_review_list)
 
 #tokenisingtrain data
-train_reviews_tokenized = tokenizer.texts_to_sequences(x_train)      
+train_reviews_tokenized = tokenizer.texts_to_sequences(x_train)
 x_train = pad_sequences(train_reviews_tokenized, maxlen = MAX_REVIEW_LENGTH_FOR_KERAS_RNN)          # 20,000 x 500
 
 #tokenising validation data
 val_review_tokenized = tokenizer.texts_to_sequences(x_val)
-x_val = pad_sequences(val_review_tokenized, maxlen = MAX_REVIEW_LENGTH_FOR_KERAS_RNN)               # 5000 X 500 
+x_val = pad_sequences(val_review_tokenized, maxlen = MAX_REVIEW_LENGTH_FOR_KERAS_RNN)               # 5000 X 500
 
 #tokenising Test data
 test_review_tokenized = tokenizer.texts_to_sequences(testcleanWords)
-x_test = pad_sequences(test_review_tokenized, maxlen = MAX_REVIEW_LENGTH_FOR_KERAS_RNN)               # 5000 X 500 
+x_test = pad_sequences(test_review_tokenized, maxlen = MAX_REVIEW_LENGTH_FOR_KERAS_RNN)               # 5000 X 500
 
 # Save the tokenizer, so that we can use this tokenizer whenever we need to predict any reviews.
-with open('tokenizer.pickle', 'wb') as handle:
-    pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
+joblib_file = "tokenizer.pkl"
+joblib.dump(tokenizer, joblib_file)
 
 def RNNModel(lstm = False):
     model = Sequential()
-    model.add(Embedding(input_dim = num_most_freq_words_to_include, 
+    model.add(Embedding(input_dim = num_most_freq_words_to_include,
                                 output_dim = embedding_vector_length,
                                 input_length = MAX_REVIEW_LENGTH_FOR_KERAS_RNN))
-    
+
     model.add(Dropout(0.2))
     model.add(Conv1D(filters = 32, kernel_size = 3, padding = 'same', activation = 'relu'))
     model.add(MaxPool1D(pool_size = 2))
@@ -143,21 +143,21 @@ def RNNModel(lstm = False):
     else:
         model.add(GRU(100))
     model.add(Dropout(0.2))
-    model.add(Dense(1, activation = 'sigmoid'))             
+    model.add(Dense(1, activation = 'sigmoid'))
     model.compile(loss = 'binary_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
-    
+
     return model
 
 themodel = RNNModel(lstm)
 themodel.summary()
-themodel.fit(x_train, y_train, batch_size=64, epochs=3, validation_data=[x_val, y_val])
+themodel.fit(x_train, y_train, batch_size=64, epochs=1, validation_data=[x_val, y_val])
 
 # LSTM
 # training accuracy - 91.7 - without using stop words.LSTM
 # training accuracy - 92.59 - with using stop words.LSTM
 # training accuracy - 91.57 - with using porter stemming(No Stop words).LSTM
 # GRU
-# training accuracy - 91.93 - without using stopwords, porter stemming. -GRU 
+# training accuracy - 91.93 - without using stopwords, porter stemming. -GRU
 # training accuracy - 92.76 - with using stop words.GRU
 # training accuracy - 92.07 - with using porter stemming.GRU
 
@@ -166,7 +166,7 @@ if lstm == True:
     modelSelected = "LSTM"
 else:
     modelSelected = "GRU"
-fileName = "RNN " + modelSelected + " model" + method + ".h5"
+fileName = "RNN " + modelSelected + " model " + method + ".h5"
 
 # Saving the model for future reference.
 themodel.save(fileName)
@@ -175,7 +175,7 @@ themodel.save(fileName)
 ytest_prediction = themodel.predict(x_test)
 
 from sklearn.metrics import  roc_auc_score
-print("The roc AUC socre for GRU(using porter stemming) model is : %.4f." %roc_auc_score(y_test, ytest_prediction)) 
+print("The roc AUC socre for GRU(using porter stemming) model is : %.4f." %roc_auc_score(y_test, ytest_prediction))
 
 # LSTM
 # 94.71-without using stop words.LSTM
@@ -186,7 +186,7 @@ print("The roc AUC socre for GRU(using porter stemming) model is : %.4f." %roc_a
 # 94.12-with using stop words.GRU
 # 94.20-with using portrestemming(No stop words).GRU
 
-# Creating csv file for 
+# Creating csv file for
 # Changing the shape of ytest_prediction to 1-Dimensional
 ytest_prediction = np.array(ytest_prediction).reshape((25000, ))
 for i in range(len(ytest_prediction)):

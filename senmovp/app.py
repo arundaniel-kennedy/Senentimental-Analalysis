@@ -1,7 +1,8 @@
 from flask import Flask,render_template,request,redirect,url_for,session
-from nltk.stem import PorterStemmer,LancasterStemmer
-from nltk.tokenize import sent_tokenize, word_tokenize
 import pandas as pd
+import joblib
+import re
+from nltk.corpus import stopwords
 import string
 import mysql.connector
 import json
@@ -17,6 +18,9 @@ config = {
 link = mysql.connector.connect(**config)
 
 mycursor = link.cursor(buffered=True)
+
+forest = joblib.load('forest.pkl')
+vectorizer = joblib.load('bow.pkl')
 
 sim=pd.read_csv("t2.csv")
 
@@ -42,49 +46,21 @@ def similar(id):
     return d
 
 def com(comment):
-    totneg=0
-    totpos=0
+    def reviewWords(review):
+        data_train_num = re.sub(r'[0-9]+', 'number', review)  # Converting numbers to "NUMBER"
+        data_train_lower = review.lower()              # Converting to lower case.
+        data_train_split = data_train_lower.split()            # Splitting into individual words.
+        stopWords = set(stopwords.words("english") )
+        meaningful_words = [w for w in data_train_split if not w in stopWords]     # Removing stop words.
+        return( " ".join( meaningful_words ))
 
-    porter = PorterStemmer()
-    lancaster = LancasterStemmer()
+    cleanWords=[]
+    #comment='entertainment more disposable than hanna-barberas half-hour cartoons ever were'
+    cleanWords.append(reviewWords(comment))
+    data_test_features = vectorizer.transform(cleanWords)
+    result = forest.predict(data_test_features)
 
-    stopfile = open("stopwords.txt",'r')
-    stopwords = stopfile.read()
-    stopwords = stopwords.split()
-
-    negfile = open("negative-words.txt",'r', encoding = "ISO-8859-1")
-    negwords = negfile.read()
-    negwords = negwords.split()
-
-    posfile = open("positive-words.txt",'r', encoding = "ISO-8859-1")
-    poswords = posfile.read()
-    poswords = poswords.split()
-
-    #comment ="it sends you away a believer again and quite cheered at just that"
-
-    exclude = set(string.punctuation)
-    comment = ''.join(ch for ch in comment if ch not in exclude)
-    comment = comment.split()
-
-
-    x =' '.join( j for j in comment if j not in stopwords)
-    x = x.split()
-
-    for j in x:
-        if j in negwords:
-            totneg+=1
-
-    for j in x:
-        if j in poswords:
-            totpos+=1
-
-    #print(totneg,totpos)
-    if(totneg>totpos):
-        return("0")
-    elif(totneg<totpos):
-        return("1")
-    else:
-        return("0")
+    return(str(result[0]))
 
 app = Flask(__name__)
 app.secret_key = "3d6f45a5fc12445dbac2f59c3b6c7cb1"

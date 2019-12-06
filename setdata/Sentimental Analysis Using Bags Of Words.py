@@ -11,6 +11,7 @@ import re
 from nltk.corpus import stopwords # Import the stop word list
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.ensemble import RandomForestClassifier
+import joblib
 
 def reviewWords(review):
     data_train_Exclude_tags = re.sub(r'<[^<>]+>', " ", review)      # Excluding the html tags
@@ -20,8 +21,8 @@ def reviewWords(review):
     stopWords = set(stopwords.words("english") )
 
     meaningful_words = [w for w in data_train_split if not w in stopWords]     # Removing stop words.
-    
-    return( " ".join( meaningful_words ))   
+
+    return( " ".join( meaningful_words ))
 
 # Reading the Data
 data_train = pd.read_csv('labeledTrainData.tsv',delimiter = "\t")
@@ -29,13 +30,13 @@ data_train = pd.read_csv('labeledTrainData.tsv',delimiter = "\t")
 # Data Cleaing And Text Prepocessing.
 
 '''
-We need to decide how to deal with frequently occurring words that don't carry much meaning. 
-Such words are called "stop words"; in English they include words such as "a", "and", "is", and "the". 
+We need to decide how to deal with frequently occurring words that don't carry much meaning.
+Such words are called "stop words"; in English they include words such as "a", "and", "is", and "the".
 '''
 
 # To get a list of stop words:
 print("List of stop words!")
-print(stopwords.words("english") )
+#print(stopwords.words("english") )
 print("---Ended---\n")
 
 # Let's process all the reviews together.
@@ -73,7 +74,8 @@ print("---Review Processing Done!---\n")
 data_test_features = vectorizer.transform(testcleanWords)
 #data_train_features = data_train_features.toarray()         # 25000x5000 sparse matrix, with 2105457 stored elements in compressed Sparse Row format.
 print("Test Features Created!!!\n")
-
+print(testcleanWords[0:5])
+print(data_test_features[0:5])
 # Making Predictions.
 result = forest.predict(data_test_features)
 
@@ -82,3 +84,9 @@ output = pd.DataFrame(data = {"id": data_test["id"], "sentiment": result} )
 
 output.to_csv("predictedResult.csv", index = False, quoting = 3 )
 # Score on kaggle comes out to be 0.84176
+
+joblib_file = "forest.pkl"
+joblib.dump(forest, joblib_file)
+
+joblib_file = "bow.pkl"
+joblib.dump(vectorizer, joblib_file)
